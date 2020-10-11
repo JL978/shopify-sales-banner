@@ -1,17 +1,36 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Page,
   Layout,
   Card,
   FormLayout,
   TextField,
-  MediaCard,
   PageActions,
+  ColorPicker,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import store from "store-js";
+import ProductInfo from "../components/ProductInfo";
 
 function Create() {
+  const [form, setForm] = useState({
+    title: "",
+    percentage: "0",
+  });
+
+  const [textColor, setTextColor] = useState({
+    hue: 120,
+    brightness: 1,
+    saturation: 1,
+  });
+  const [bgColor, setbgColor] = useState({
+    hue: 120,
+    brightness: 1,
+    saturation: 1,
+  });
+
+  const textColorChange = useCallback(setTextColor, []);
+  const bgColorChange = useCallback(setbgColor, []);
+
   return (
     <Page
       breadcrumbs={[{ content: "Home", url: "/" }]}
@@ -25,43 +44,37 @@ function Create() {
         >
           <Card sectioned>
             <FormLayout>
-              <TextField type="text" label="Title" onChange={() => {}} />
+              <TextField
+                type="text"
+                value={form.title}
+                label="Title"
+                onChange={(text) =>
+                  setForm((form) => ({ ...form, title: text }))
+                }
+              />
               <TextField
                 type="text"
                 label="Sales Percentage"
-                onChange={() => {}}
+                value={form.percentage}
+                onChange={(text) =>
+                  setForm((form) => ({ ...form, percentage: text }))
+                }
               />
+              <div className="Polaris-Label">
+                <label className="Polaris-Label__Text">Choose Text Color</label>
+              </div>
+              <ColorPicker onChange={textColorChange} color={textColor} />
+              <div className="Polaris-Label">
+                <label className="Polaris-Label__Text">
+                  Choose Background Color
+                </label>
+              </div>
+              <ColorPicker onChange={bgColorChange} color={bgColor} />
             </FormLayout>
           </Card>
         </Layout.AnnotatedSection>
-        <Layout.AnnotatedSection
-          title="Product Information"
-          description="Create a name for your banner"
-        >
-          <Card sectioned>
-            <MediaCard
-              title="Something"
-              primaryAction={{
-                content: "Change Product",
-                onAction: () => {},
-              }}
-              description={`
-                  Price: $100
-                  `}
-            >
-              <img
-                alt=""
-                width="100%"
-                height="100%"
-                style={{
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-                src="https://burst.shopifycdn.com/photos/smiling-businesswoman-in-office.jpg?width=1850"
-              />
-            </MediaCard>
-          </Card>
-        </Layout.AnnotatedSection>
+
+        <ProductInfo />
       </Layout>
       <PageActions
         primaryAction={{

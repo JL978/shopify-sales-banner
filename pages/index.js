@@ -5,32 +5,17 @@ import store from "store-js";
 import { useRouter } from "next/router";
 
 function Index() {
-  const [modalOpen, setModal] = useState(false);
   const router = useRouter();
-
-  function handleResourcePicker(resources) {
-    const products = resources.selection.map((product) => product.id);
-    store.set("productIds", products);
-    setModal(false);
-    router.push("/create");
-  }
 
   return (
     <Page>
       <TitleBar title="Home" />
-      <ResourcePicker
-        resourceType="Product"
-        open={modalOpen}
-        onCancel={() => setModal(false)}
-        showVariants={false}
-        onSelection={(resources) => handleResourcePicker(resources)}
-      />
       <EmptyState
         heading="Create Sale Banner"
         action={{
           content: "Select product",
           onAction: () => {
-            setModal(true);
+            router.push("/create");
           },
         }}
         secondaryAction={{
