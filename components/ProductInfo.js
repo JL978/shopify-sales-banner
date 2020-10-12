@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Layout, Card, MediaCard } from "@shopify/polaris";
+import { Layout, Card, MediaCard, Button } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import store from "store-js";
 
-export default function ProductInfo() {
+export default function ProductInfo({ setId, id, loading, data, error }) {
   const [modalOpen, setModal] = useState(false);
 
   function handleResourcePicker(resources) {
     const products = resources.selection.map((product) => product.id);
-    store.set("productIds", products);
     setModal(false);
+    setId(products[0]);
   }
+
   return (
     <>
       <ResourcePicker
@@ -22,30 +22,36 @@ export default function ProductInfo() {
       />
       <Layout.AnnotatedSection
         title="Product Information"
-        description="Create a name for your banner"
+        description="Pick a product for your banner"
       >
         <Card sectioned>
-          <MediaCard
-            title="Something"
-            primaryAction={{
-              content: "Change Product",
-              onAction: () => setModal(true),
-            }}
-            description={`
-            Price: $100
-            `}
-          >
-            <img
-              alt=""
-              width="100%"
-              height="100%"
-              style={{
-                objectFit: "cover",
-                objectPosition: "center",
+          {id === "" ? (
+            <Button onClick={() => setModal(true)}>Choose a Product</Button>
+          ) : loading ? (
+            <p>Loading...</p>
+          ) : (
+            <MediaCard
+              title={data.nodes[0].title}
+              primaryAction={{
+                content: "Change Product",
+                onAction: () => setModal(true),
               }}
-              src="https://burst.shopifycdn.com/photos/smiling-businesswoman-in-office.jpg?width=1850"
-            />
-          </MediaCard>
+              description={`
+                  Price: $${data.nodes[0].variants.edges[0].node.price}
+                  `}
+            >
+              <img
+                alt={data.nodes[0].images.edges[0].node.altText}
+                width="100%"
+                height="100%"
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+                src={data.nodes[0].images.edges[0].node.originalSrc}
+              />
+            </MediaCard>
+          )}
         </Card>
       </Layout.AnnotatedSection>
     </>
