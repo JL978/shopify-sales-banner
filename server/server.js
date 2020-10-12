@@ -8,6 +8,10 @@ import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
 import * as handlers from "./handlers/index";
+import json from "koa-json";
+import koaBody from "koa-body";
+import serve from "koa-static";
+
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
 const dev = process.env.NODE_ENV !== "production";
@@ -16,6 +20,9 @@ const app = next({
 });
 const handle = app.getRequestHandler();
 const { SHOPIFY_API_SECRET, SHOPIFY_API_KEY, SCOPES } = process.env;
+
+let mockDB = [];
+
 app.prepare().then(() => {
   const server = new Koa();
   const router = new Router();
@@ -28,6 +35,7 @@ app.prepare().then(() => {
       server
     )
   );
+  server.use(json());
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
     createShopifyAuth({
@@ -58,6 +66,25 @@ app.prepare().then(() => {
     ctx.respond = false;
     ctx.res.statusCode = 200;
   });
+
+  router.get("/api/banners", koaBody(), async (ctx) => {
+    ctx.body = {
+      status: 200,
+      message: "All banners",
+      data: mockDB,
+    };
+  });
+  router.post("/api/banners", koaBody(), async (ctx) => {
+    mockDB.push(ctx.request.body);
+    ctx.body = {
+      status: 200,
+      message: "Added banner data",
+      data: mockDB,
+    };
+  });
+
+  server.use(serve(__dirname, "/public"));
+
   server.use(router.allowedMethods());
   server.use(router.routes());
   server.listen(port, () => {

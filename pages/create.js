@@ -13,6 +13,7 @@ import {
 import { TitleBar } from "@shopify/app-bridge-react";
 import ProductInfo from "../components/ProductInfo";
 import Banner from "../components/Banner";
+import axios from "axios";
 
 import { useQuery, gql } from "@apollo/client";
 
@@ -168,14 +169,24 @@ function Create() {
         primaryAction={{
           content: "Save",
           onAction: () => {
+            const productInfo = {
+              id,
+              title: data.nodes[0].title,
+              img: data.nodes[0].images.edges[0].node.originalSrc,
+            };
             const saveData = {
               form,
-              id,
+              productInfo,
               bgColor: hsbToRgb(bgColor),
               textColor: hsbToRgb(textColor),
               location,
             };
-            console.log(saveData);
+            if (data) {
+              axios
+                .post("/api/banners", saveData)
+                .then((res) => console.log(res))
+                .catch((err) => console.log(err));
+            }
           },
         }}
         secondaryActions={[
